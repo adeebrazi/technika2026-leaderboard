@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TECHNIKA 6.0 // WINNER MANAGEMENT CONSOLE</title>
+  <!-- Google Fonts: Space Grotesk, Outfit, Space Mono, Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Outfit:wght@600;700;800;900&family=Space+Grotesk:wght@600;700;800;900&family=Space+Mono:wght@700&display=swap" rel="stylesheet">
+  <!-- Supabase CDN Client -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  
+  <style>
+    :root {
+      --bg-primary: #F4EAE6;
+      --bg-card: #FFFFFF;
+      --text-primary: #180504;
+      --text-secondary: #5C201C;
+      --text-muted: #7A3D38;
+      
+      --accent-neon-yellow: #D6FD52;
+      --accent-neon-cyan: #3CE6FC;
+      --accent-neon-pink: #FF3B93;
+      --accent-neon-orange: #FF6B00;
+      --accent-neon-purple: #C084FC;
+      --accent-terracotta: #8B261E;
+      
+      --border-black: 3px solid #000000;
+      --border-thin: 2px solid #000000;
+      --shadow-base: 4px 4px 0px #000000;
+      --shadow-large: 8px 8px 0px #000000;
+      --shadow-small: 2px 2px 0px #000000;
+      
+      --font-heading: 'Space Grotesk', 'Outfit', sans-serif;
+      --font-body: 'Inter', sans-serif;
+      --font-mono: 'Space Mono', monospace;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg-primary);
+      color: var(--text-primary);
+      font-family: var(--font-body);
+      min-height: 100vh;
+      padding: 24px 16px 80px;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    /* Top Status Bar */
+    .brut-ticker {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: #000000;
+      color: var(--accent-neon-yellow);
+      border: var(--border-black);
+      box-shadow: var(--shadow-base);
+      padding: 10px 16px;
+      font-family: var(--font-mono);
+      font-size: 0.85rem;
+      font-weight: 700;
+      margin-bottom: 24px;
+    }
+
+    .ticker-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .live-dot {
+      width: 10px;
+      height: 10px;
+      background: var(--accent-neon-yellow);
+      border-radius: 50%;
+      box-shadow: 0 0 10px var(--accent-neon-yellow);
+      animation: pulse 1.5s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.4; transform: scale(0.85); }
+    }
+
+    /* Header */
+    header {
+      margin-bottom: 28px;
+    }
+
+    .hero-box {
+      background: #FFFFFF;
+      border: var(--border-black);
+      box-shadow: var(--shadow-large);
+      padding: 24px 28px;
+      position: relative;
+    }
+
+    .hero-tag {
+      display: inline-block;
+      background: #000000;
+      color: #FFFFFF;
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      font-weight: 700;
+      padding: 4px 10px;
+      margin-bottom: 12px;
+      letter-spacing: 0.05em;
+    }
+
+    h1 {
+      font-family: var(--font-heading);
+      font-size: clamp(1.8rem, 4vw, 2.8rem);
+      font-weight: 900;
+      line-height: 1.1;
+      text-transform: uppercase;
+      letter-spacing: -0.02em;
+    }
+
+    .hl-yellow { background: var(--accent-neon-yellow); padding: 0 6px; border: 2px solid #000; }
+    .hl-pink { background: var(--accent-neon-pink); color: #FFF; padding: 0 6px; border: 2px solid #000; }
+    .hl-cyan { background: var(--accent-neon-cyan); padding: 0 6px; border: 2px solid #000; }
+
+    .subtitle {
+      font-weight: 600;
+      font-size: 1rem;
+      color: var(--text-secondary);
+      margin-top: 10px;
+    }
+
+    .nav-links {
+      margin-top: 16px;
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .nav-btn {
+      font-family: var(--font-mono);
+      font-size: 0.85rem;
+      font-weight: 700;
+      text-decoration: none;
+      color: #000;
+      background: var(--accent-neon-cyan);
+      border: var(--border-thin);
+      box-shadow: var(--shadow-small);
+      padding: 6px 14px;
+      transition: all 0.15s ease;
+    }
+
+    .nav-btn:hover {
+      transform: translate(-1px, -1px);
+      box-shadow: var(--shadow-base);
+    }
+
+    /* Event Selection Panel */
+    .selector-panel {
+      background: #FFFFFF;
+      border: var(--border-black);
+      box-shadow: var(--shadow-base);
+      padding: 20px;
+      margin-bottom: 24px;
+    }
+
+    .panel-title {
+      font-family: var(--font-heading);
+      font-size: 1.25rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      margin-bottom: 14px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .form-group {
+      margin-bottom: 16px;
+    }
+
+    label {
+      display: block;
+      font-family: var(--font-mono);
+      font-size: 0.8rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      margin-bottom: 6px;
+      color: var(--text-primary);
+    }
+
+    select, input[type="text"], input[type="password"] {
+      width: 100%;
+      background: #FFFFFF;
+      border: var(--border-black);
+      box-shadow: var(--shadow-small);
+      padding: 12px 14px;
+      font-family: var(--font-body);
+      font-size: 1rem;
+      font-weight: 600;
+      color: #000;
+      outline: none;
+      transition: all 0.15s ease;
+    }
+
+    select:focus, input:focus {
+      box-shadow: var(--shadow-base);
+      background: #FFFDF0;
+    }
+
+    /* Event Rule Info Card */
+    .event-info-strip {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      background: #F4EAE6;
+      border: var(--border-thin);
+      padding: 12px 16px;
+      margin-top: 14px;
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+    }
+
+    .info-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: #000;
+      color: #FFF;
+      padding: 4px 10px;
+      border-radius: 4px;
+      font-weight: 700;
+    }
+
+    /* Grid Layout for Active Event & Declaration */
+    .console-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+    }
+
+    @media (max-width: 900px) {
+      .console-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* Section Boxes */
+    .console-box {
+      background: #FFFFFF;
+      border: var(--border-black);
+      box-shadow: var(--shadow-base);
+      padding: 22px;
+    }
+
+    .pos-card {
+      border: var(--border-black);
+      box-shadow: var(--shadow-small);
+      padding: 16px;
+      margin-bottom: 16px;
+      background: #FAFAFA;
+      position: relative;
+    }
+
+    .pos-card.pos-1 {
+      border-left: 10px solid var(--accent-neon-yellow);
+    }
+
+    .pos-card.pos-2 {
+      border-left: 10px solid var(--accent-neon-cyan);
+    }
+
+    .pos-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+      border-bottom: 2px solid #000;
+      padding-bottom: 8px;
+    }
+
+    .pos-title {
+      font-family: var(--font-heading);
+      font-size: 1.15rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .pos-points {
+      font-family: var(--font-mono);
+      font-size: 0.85rem;
+      font-weight: 800;
+      background: #000;
+      color: #FFF;
+      padding: 3px 8px;
+    }
+
+    .winner-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .winner-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: #FFFFFF;
+      border: var(--border-thin);
+      padding: 8px 12px;
+    }
+
+    .winner-name {
+      font-weight: 700;
+      font-size: 0.95rem;
+    }
+
+    .winner-meta {
+      font-size: 0.78rem;
+      color: var(--text-secondary);
+      font-family: var(--font-mono);
+    }
+
+    .btn-remove {
+      background: var(--accent-neon-pink);
+      color: #FFF;
+      border: 2px solid #000;
+      box-shadow: 2px 2px 0px #000;
+      padding: 4px 10px;
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      font-weight: 800;
+      cursor: pointer;
+      transition: all 0.1s ease;
+    }
+
+    .btn-remove:hover {
+      background: #FF0055;
+      transform: translate(-1px, -1px);
+    }
+
+    .empty-state {
+      padding: 16px;
+      text-align: center;
+      font-family: var(--font-mono);
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      font-style: italic;
+    }
+
+    /* Assign Winner Form */
+    .btn-brut {
+      width: 100%;
+      background: var(--accent-neon-yellow);
+      color: #000000;
+      border: var(--border-black);
+      box-shadow: var(--shadow-base);
+      padding: 14px 20px;
+      font-family: var(--font-heading);
+      font-size: 1.1rem;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      margin-top: 14px;
+    }
+
+    .btn-brut:hover {
+      transform: translate(-2px, -2px);
+      box-shadow: var(--shadow-large);
+      background: #E4FF70;
+    }
+
+    .btn-brut:active {
+      transform: translate(2px, 2px);
+      box-shadow: var(--shadow-small);
+    }
+
+    /* Search Results Dropdown */
+    .autocomplete-box {
+      position: relative;
+    }
+
+    .search-results {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 0;
+      background: #FFFFFF;
+      border: var(--border-black);
+      box-shadow: var(--shadow-base);
+      max-height: 250px;
+      overflow-y: auto;
+      z-index: 100;
+      display: none;
+    }
+
+    .search-result-item {
+      padding: 10px 14px;
+      border-bottom: 1px solid #DDD;
+      cursor: pointer;
+      transition: background 0.1s ease;
+    }
+
+    .search-result-item:hover {
+      background: var(--accent-neon-cyan);
+    }
+
+    .search-result-item .item-title {
+      font-weight: 700;
+      font-size: 0.95rem;
+    }
+
+    .search-result-item .item-sub {
+      font-size: 0.8rem;
+      color: #555;
+      font-family: var(--font-mono);
+    }
+
+    /* Toast Notification */
+    #toast {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      background: #000;
+      color: #FFF;
+      border: var(--border-black);
+      box-shadow: var(--shadow-large);
+      padding: 14px 20px;
+      font-family: var(--font-mono);
+      font-size: 0.9rem;
+      font-weight: 700;
+      z-index: 1000;
+      display: none;
+      animation: slideIn 0.2s ease;
+    }
+
+    @keyframes slideIn {
+      from { transform: translateY(20px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    
+    <!-- Top Status Ticker -->
+    <div class="brut-ticker">
+      <div class="ticker-left">
+        <span class="live-dot"></span>
+        <span>SUPABASE REALTIME // ADMIN SECURE CHANNEL</span>
+      </div>
+      <div id="lastSyncStatus">SYNC: INITIALIZING</div>
+    </div>
+
+    <!-- Header -->
+    <header>
+      <div class="hero-box">
+        <div class="hero-tag">★ TECHNIKA 2026 OFFICIAL CONTROL ★</div>
+        <h1>TECHNIKA <span class="hl-yellow">6.0</span> <span class="hl-pink">WINNER MANAGER</span></h1>
+        <p class="subtitle">Direct Web Portal for Declaring, Editing &amp; Removing Festival Event Winners</p>
+        
+        <div class="nav-links">
+          <a href="index.html" class="nav-btn" target="_blank">🌐 OPEN PUBLIC LEADERBOARD ↗</a>
+          <button id="btnRefresh" class="nav-btn" style="background:var(--accent-neon-yellow); cursor:pointer;">🔄 FORCE SYNC</button>
+        </div>
+      </div>
+    </header>
+
+    <!-- Event Selection Panel -->
+    <div class="selector-panel">
+      <div class="panel-title">
+        <span>🎯 STEP 1: SELECT EVENT TO MANAGE</span>
+      </div>
+      <div class="form-group">
+        <label for="eventSelect">Choose Competition Event (47 Total Events)</label>
+        <select id="eventSelect">
+          <option value="" disabled selected>-- Choose an Event --</option>
+        </select>
+      </div>
+
+      <!-- Active Event Details -->
+      <div class="event-info-strip" id="eventInfoStrip" style="display:none;">
+        <span class="info-badge" id="infoCategory">CATEGORY: TECHNICAL</span>
+        <span class="info-badge" id="infoType">TYPE: SOLO</span>
+        <span class="info-badge" id="infoLimits">MEMBERS: 1 MIN / 1 MAX</span>
+        <span class="info-badge" id="infoVenue">VENUE: MAIN LAB</span>
+      </div>
+    </div>
+
+    <!-- Main Grid: Declared Winners & Add Form -->
+    <div class="console-grid">
+      
+      <!-- Box 1: Currently Declared Winners for Event -->
+      <div class="console-box">
+        <div class="panel-title">
+          <span>🏆 CURRENT EVENT PODIUM</span>
+        </div>
+        
+        <!-- Winner (1st) -->
+        <div class="pos-card pos-1">
+          <div class="pos-header">
+            <div class="pos-title">🥇 WINNER (1ST PLACE)</div>
+            <div class="pos-points">10 PTS / MEMBER</div>
+          </div>
+          <div class="winner-list" id="winnerList1">
+            <div class="empty-state">No 1st place winner declared yet.</div>
+          </div>
+        </div>
+
+        <!-- Runner-Up (2nd) -->
+        <div class="pos-card pos-2">
+          <div class="pos-header">
+            <div class="pos-title">🥈 RUNNER-UP (2ND PLACE)</div>
+            <div class="pos-points">7 PTS / MEMBER</div>
+          </div>
+          <div class="winner-list" id="winnerList2">
+            <div class="empty-state">No runner-up declared yet.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Box 2: Declare New Winner Form -->
+      <div class="console-box">
+        <div class="panel-title">
+          <span>✍️ STEP 2: DECLARE / ADD WINNER</span>
+        </div>
+
+        <form id="declareForm" onsubmit="return false;">
+          <div class="form-group">
+            <label for="posSelect">Position to Award</label>
+            <select id="posSelect">
+              <option value="1">🥇 1st Place (Winner - 10 Points)</option>
+              <option value="2">🥈 2nd Place (Runner-up - 7 Points)</option>
+            </select>
+          </div>
+
+          <div class="form-group autocomplete-box">
+            <label for="studentSearch">Participant Search (Name / Reg ID / College)</label>
+            <input type="text" id="studentSearch" placeholder="Type name or registration ID..." autocomplete="off">
+            <div class="search-results" id="searchResults"></div>
+          </div>
+
+          <div class="form-group">
+            <label>Selected Participant Details</label>
+            <div id="selectedParticipantPreview" style="background:#F4EAE6; border:var(--border-thin); padding:10px 14px; font-family:var(--font-mono); font-size:0.85rem; font-weight:700;">
+              No participant selected yet.
+            </div>
+          </div>
+
+          <button type="button" class="btn-brut" id="btnAssignWinner">
+            <span>⚡ ASSIGN TO EVENT PODIUM</span>
+          </button>
+        </form>
+      </div>
+
+    </div>
+
+  </div>
+
+  <!-- Toast Notification -->
+  <div id="toast"></div>
+
+  <script src="config.js"></script>
+  <script src="admin.js"></script>
+</body>
+</html>
+

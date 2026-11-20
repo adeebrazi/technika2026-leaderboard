@@ -1,0 +1,846 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TECHNIKA 2026 // LIVE FESTIVAL LEADERBOARD</title>
+  <!-- Google Fonts: Space Grotesk, Outfit, Space Mono, Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Outfit:wght@600;700;800;900&family=Space+Grotesk:wght@600;700;800;900&family=Space+Mono:wght@700&display=swap" rel="stylesheet">
+  <!-- Supabase CDN Client -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  
+  <style>
+    /* -------------------------------------------------------------
+     * TECHNIKA 6.0 | NEO-BRUTALIST LIVE LEADERBOARD STYLING
+     * ------------------------------------------------------------- */
+    :root {
+      --bg-primary: #F4EAE6;
+      --bg-card: #FFFFFF;
+      --text-primary: #180504;
+      --text-secondary: #5C201C;
+      --text-muted: #7A3D38;
+      
+      --accent-neon-yellow: #D6FD52;
+      --accent-neon-cyan: #3CE6FC;
+      --accent-neon-pink: #FF3B93;
+      --accent-neon-orange: #FF6B00;
+      --accent-neon-purple: #C084FC;
+      --accent-terracotta: #8B261E;
+      --accent-terracotta-light: #FF5243;
+      
+      --accent-boys: #3CE6FC;
+      --accent-girls: #FF3B93;
+      --accent-univ: #D6FD52;
+
+      --border-black: 3px solid #000000;
+      --border-thin: 2px solid #000000;
+      --shadow-base: 4px 4px 0px #000000;
+      --shadow-large: 8px 8px 0px #000000;
+      --shadow-small: 2px 2px 0px #000000;
+      
+      --font-heading: 'Space Grotesk', 'Outfit', sans-serif;
+      --font-body: 'Inter', sans-serif;
+      --font-mono: 'Space Mono', monospace;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      background-color: var(--bg-primary);
+      color: var(--text-primary);
+      font-family: var(--font-body);
+      min-height: 100vh;
+      overflow-x: hidden;
+      background-image: 
+        radial-gradient(#180504 1.2px, transparent 1.2px),
+        radial-gradient(#8B261E 1.2px, var(--bg-primary) 1.2px);
+      background-size: 32px 32px;
+      background-position: 0 0, 16px 16px;
+    }
+
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 24px 20px 80px 20px;
+    }
+
+    /* Top Marquee / Status ticker */
+    .brut-ticker {
+      background: #000000;
+      color: var(--accent-neon-yellow);
+      font-family: var(--font-mono);
+      font-size: 0.78rem;
+      font-weight: 700;
+      padding: 8px 16px;
+      border: var(--border-black);
+      box-shadow: var(--shadow-base);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 24px;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+
+    .ticker-live {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .live-indicator {
+      width: 10px;
+      height: 10px;
+      background-color: #22c55e;
+      border: 1.5px solid #000000;
+      animation: blink 1.2s infinite;
+    }
+
+    @keyframes blink {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.2; transform: scale(0.85); }
+    }
+
+    /* Hero Header */
+    header {
+      margin-bottom: 28px;
+      text-align: center;
+    }
+
+    .hero-box {
+      background: var(--bg-card);
+      border: var(--border-black);
+      box-shadow: var(--shadow-large);
+      padding: 24px 20px;
+      display: inline-block;
+      max-width: 900px;
+      width: 100%;
+      transform: rotate(-0.5deg);
+      transition: transform 0.2s ease;
+    }
+
+    .hero-box:hover {
+      transform: rotate(0deg);
+    }
+
+    .hero-tag {
+      display: inline-block;
+      background: var(--accent-neon-pink);
+      color: #000000;
+      font-family: var(--font-mono);
+      font-weight: 900;
+      font-size: 0.8rem;
+      padding: 4px 10px;
+      border: var(--border-thin);
+      box-shadow: 2px 2px 0px #000;
+      margin-bottom: 12px;
+      text-transform: uppercase;
+    }
+
+    h1 {
+      font-family: var(--font-heading);
+      font-size: clamp(2rem, 5vw, 3.4rem);
+      font-weight: 900;
+      letter-spacing: -0.03em;
+      text-transform: uppercase;
+      line-height: 1.05;
+      color: var(--text-primary);
+    }
+
+    h1 span.hl-yellow {
+      background: var(--accent-neon-yellow);
+      padding: 0 8px;
+      border: 2px solid #000;
+      box-shadow: 3px 3px 0px #000;
+      display: inline-block;
+    }
+
+    h1 span.hl-cyan {
+      background: var(--accent-neon-cyan);
+      padding: 0 8px;
+      border: 2px solid #000;
+      box-shadow: 3px 3px 0px #000;
+      display: inline-block;
+    }
+
+    p.subtitle {
+      font-weight: 600;
+      font-size: 1.05rem;
+      margin-top: 10px;
+      color: var(--text-secondary);
+    }
+
+    /* Tab Switcher: Students (Boys & Girls) vs University Standings */
+    .tab-navigation {
+      display: flex;
+      justify-content: center;
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+
+    .brut-tab-btn {
+      background: var(--bg-card);
+      color: #000000;
+      font-family: var(--font-heading);
+      font-weight: 800;
+      font-size: 1.05rem;
+      text-transform: uppercase;
+      padding: 12px 28px;
+      border: var(--border-black);
+      box-shadow: var(--shadow-base);
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      transition: all 0.15s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .brut-tab-btn:hover {
+      transform: translate(-2px, -2px);
+      box-shadow: 6px 6px 0px #000000;
+    }
+
+    .brut-tab-btn:active {
+      transform: translate(2px, 2px);
+      box-shadow: var(--shadow-small);
+    }
+
+    .brut-tab-btn.active {
+      background: #000000;
+      color: #FFFFFF;
+      box-shadow: 5px 5px 0px var(--accent-terracotta-light);
+    }
+
+    .brut-tab-btn.active .tab-badge {
+      background: var(--accent-neon-yellow);
+      color: #000000;
+    }
+
+    .tab-badge {
+      background: var(--bg-primary);
+      color: #000;
+      border: 1.5px solid #000;
+      font-size: 0.72rem;
+      font-family: var(--font-mono);
+      font-weight: 900;
+      padding: 2px 6px;
+    }
+
+    /* Controls & Filter Bar */
+    .controls-panel {
+      background: var(--bg-card);
+      border: var(--border-black);
+      box-shadow: var(--shadow-large);
+      padding: 16px 20px;
+      margin-bottom: 28px;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+
+    .filters-cluster {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 14px;
+      flex: 1;
+    }
+
+    .filter-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .filter-label {
+      font-family: var(--font-mono);
+      font-size: 0.78rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      background: #000;
+      color: #FFF;
+      padding: 6px 10px;
+      border: 2px solid #000;
+      box-shadow: 2px 2px 0px rgba(0,0,0,0.2);
+    }
+
+    select.brut-select {
+      background: var(--bg-card);
+      color: var(--text-primary);
+      font-family: var(--font-body);
+      font-weight: 700;
+      font-size: 0.9rem;
+      padding: 8px 14px;
+      border: var(--border-black);
+      box-shadow: 3px 3px 0px #000000;
+      cursor: pointer;
+      outline: none;
+      max-width: 280px;
+      transition: all 0.15s ease;
+    }
+
+    select.brut-select:focus {
+      background: #FFF;
+      box-shadow: 4px 4px 0px var(--accent-neon-cyan);
+    }
+
+    .search-wrapper {
+      position: relative;
+      min-width: 240px;
+      flex: 1;
+    }
+
+    .search-wrapper input {
+      width: 100%;
+      background: var(--bg-card);
+      color: #000000;
+      font-family: var(--font-body);
+      font-weight: 700;
+      font-size: 0.9rem;
+      padding: 9px 14px;
+      border: var(--border-black);
+      box-shadow: 3px 3px 0px #000000;
+      outline: none;
+      transition: all 0.15s ease;
+    }
+
+    .search-wrapper input:focus {
+      background: #FFFFFF;
+      box-shadow: 4px 4px 0px var(--accent-neon-yellow);
+    }
+
+    .btn-brut {
+      background: var(--accent-neon-yellow);
+      color: #000000;
+      font-family: var(--font-heading);
+      font-weight: 800;
+      font-size: 0.88rem;
+      text-transform: uppercase;
+      padding: 9px 18px;
+      border: var(--border-black);
+      box-shadow: var(--shadow-base);
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.15s ease;
+    }
+
+    .btn-brut:hover {
+      background: #000;
+      color: var(--accent-neon-yellow);
+      transform: translate(-1px, -1px);
+      box-shadow: 5px 5px 0px #000;
+    }
+
+    .btn-brut:active {
+      transform: translate(2px, 2px);
+      box-shadow: 1px 1px 0px #000;
+    }
+
+    /* Views container */
+    .view-content {
+      display: none;
+    }
+
+    .view-content.active {
+      display: block;
+    }
+
+    /* 2-Column Split: Boys & Girls (Top 10 each) */
+    .columns-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
+      gap: 28px;
+    }
+
+    .column-panel {
+      background: var(--bg-card);
+      border: var(--border-black);
+      box-shadow: var(--shadow-large);
+      padding: 0;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .panel-header {
+      padding: 16px 20px;
+      border-bottom: var(--border-black);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .panel-header.boys {
+      background: var(--accent-neon-cyan);
+    }
+
+    .panel-header.girls {
+      background: var(--accent-neon-pink);
+    }
+
+    .panel-header.university {
+      background: var(--accent-neon-yellow);
+    }
+
+    .panel-title {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .panel-icon-badge {
+      width: 38px;
+      height: 38px;
+      background: #000000;
+      color: #FFFFFF;
+      border: var(--border-thin);
+      box-shadow: 2px 2px 0px rgba(0,0,0,0.3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.25rem;
+      font-weight: 900;
+    }
+
+    .panel-title h2 {
+      font-family: var(--font-heading);
+      font-size: 1.4rem;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: -0.01em;
+      line-height: 1.1;
+    }
+
+    .top-limit-badge {
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      font-weight: 900;
+      background: #000000;
+      color: #FFFFFF;
+      padding: 4px 10px;
+      border: var(--border-thin);
+    }
+
+    .cards-list {
+      padding: 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      background: var(--bg-card);
+    }
+
+    /* Leaderboard Card - Brutal Card */
+    .brut-card {
+      background: var(--bg-card);
+      border: var(--border-black);
+      box-shadow: var(--shadow-base);
+      padding: 14px 16px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      transition: all 0.15s ease;
+      position: relative;
+    }
+
+    .brut-card:hover {
+      transform: translate(-2px, -2px);
+      box-shadow: 6px 6px 0px #000000;
+    }
+
+    .rank-stamp {
+      width: 44px;
+      height: 44px;
+      border: var(--border-black);
+      box-shadow: 2px 2px 0px #000;
+      font-family: var(--font-mono);
+      font-weight: 900;
+      font-size: 1.2rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      background: #F4EAE6;
+      color: #000;
+    }
+
+    .rank-1 {
+      background: var(--accent-neon-yellow);
+      color: #000;
+      box-shadow: 3px 3px 0px #000;
+      transform: scale(1.05);
+    }
+
+    .rank-2 {
+      background: var(--accent-neon-cyan);
+      color: #000;
+      box-shadow: 3px 3px 0px #000;
+    }
+
+    .rank-3 {
+      background: #FF6B00;
+      color: #FFF;
+      box-shadow: 3px 3px 0px #000;
+    }
+
+    .card-body {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .card-name {
+      font-family: var(--font-heading);
+      font-weight: 800;
+      font-size: 1.15rem;
+      line-height: 1.2;
+      color: var(--text-primary);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .card-univ {
+      font-weight: 700;
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+      margin-top: 3px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .card-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 6px;
+    }
+
+    .tag-pill {
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      padding: 2px 6px;
+      border: 1.5px solid #000;
+      background: #F4EAE6;
+      color: #000;
+    }
+
+    .tag-pill.win {
+      background: var(--accent-neon-yellow);
+    }
+
+    .tag-pill.tech {
+      background: var(--accent-neon-cyan);
+    }
+
+    /* Score block */
+    .score-badge {
+      border: var(--border-black);
+      box-shadow: 2px 2px 0px #000;
+      padding: 6px 12px;
+      text-align: center;
+      min-width: 70px;
+      flex-shrink: 0;
+      background: #000;
+      color: #FFF;
+    }
+
+    .score-val {
+      font-family: var(--font-mono);
+      font-size: 1.3rem;
+      font-weight: 900;
+      line-height: 1;
+      color: var(--accent-neon-yellow);
+    }
+
+    .score-lbl {
+      font-family: var(--font-mono);
+      font-size: 0.65rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: #FFF;
+      margin-top: 2px;
+    }
+
+    /* University Tab Styles */
+    .univ-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .univ-card {
+      background: var(--bg-card);
+      border: var(--border-black);
+      box-shadow: var(--shadow-base);
+      padding: 16px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      transition: all 0.15s ease;
+    }
+
+    .univ-card:hover {
+      transform: translate(-2px, -2px);
+      box-shadow: 6px 6px 0px #000000;
+    }
+
+    .univ-left {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      min-width: 0;
+    }
+
+    .univ-info {
+      min-width: 0;
+    }
+
+    .univ-title {
+      font-family: var(--font-heading);
+      font-size: 1.25rem;
+      font-weight: 900;
+      text-transform: uppercase;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      color: var(--text-primary);
+    }
+
+    .univ-stats {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 4px;
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: var(--text-secondary);
+    }
+
+    .univ-stats span {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .univ-score-group {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    /* Empty state */
+    .empty-state {
+      padding: 40px 20px;
+      text-align: center;
+      font-family: var(--font-mono);
+      font-weight: 800;
+      color: var(--text-muted);
+      border: 2px dashed #000;
+      background: #F4EAE6;
+      margin: 10px 0;
+    }
+
+    /* Footer */
+    footer {
+      margin-top: 48px;
+      text-align: center;
+      border: var(--border-black);
+      background: #000000;
+      color: #FFFFFF;
+      padding: 14px 20px;
+      font-family: var(--font-mono);
+      font-size: 0.8rem;
+      font-weight: 700;
+      box-shadow: var(--shadow-base);
+    }
+
+    footer span {
+      color: var(--accent-neon-yellow);
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .controls-panel {
+        flex-direction: column;
+        align-items: stretch;
+      }
+      .filters-cluster {
+        flex-direction: column;
+        align-items: stretch;
+      }
+      select.brut-select {
+        max-width: 100%;
+        width: 100%;
+      }
+      .tab-navigation {
+        flex-direction: column;
+      }
+      .brut-tab-btn {
+        width: 100%;
+        justify-content: center;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    
+    <!-- Top Status Ticker -->
+    <div class="brut-ticker">
+      <div class="ticker-live">
+        <span class="live-indicator"></span>
+        <span>SUPABASE REALTIME // LIVE STREAM ACTIVE</span>
+      </div>
+      <div id="lastSyncTime">SYNC: CONNECTED</div>
+    </div>
+
+    <!-- Header -->
+    <header>
+      <div class="hero-box">
+        <div class="hero-tag">★ TECHNIKA 2026 OFFICIAL ARENA ★</div>
+        <h1>TECHNIKA <span class="hl-yellow">6.0</span> <span class="hl-cyan">LEADERBOARD</span></h1>
+        <p class="subtitle">Live Competition Results &amp; Championship Standings</p>
+        <div style="margin-top: 14px;">
+          <a href="admin.html" target="_blank" style="font-family: var(--font-mono); font-size: 0.8rem; font-weight: 700; text-decoration: none; color: #000; background: var(--accent-neon-yellow); border: var(--border-thin); box-shadow: var(--shadow-small); padding: 5px 12px; display: inline-block;">
+            ⚙️ ADMIN WINNER CONSOLE ↗
+          </a>
+        </div>
+      </div>
+    </header>
+
+    <!-- Tab Navigation -->
+    <div class="tab-navigation">
+      <button class="brut-tab-btn active" id="tabStudentsBtn">
+        <span>👨‍🎓 👩‍🎓 TOP 10 STUDENTS (BOYS &amp; GIRLS)</span>
+        <span class="tab-badge">HALL OF FAME</span>
+      </button>
+      <button class="brut-tab-btn" id="tabUniversityBtn">
+        <span>🏛️ UNIVERSITY PERFORMANCE RANKINGS</span>
+        <span class="tab-badge">CHAMPIONSHIP</span>
+      </button>
+    </div>
+
+    <!-- Global Controls & Filters -->
+    <div class="controls-panel">
+      <div class="filters-cluster">
+        
+        <!-- Filter 1: Institute / University (With "ALL" option) -->
+        <div class="filter-item">
+          <span class="filter-label">INSTITUTE</span>
+          <select id="instituteFilter" class="brut-select">
+            <option value="ALL">ALL INSTITUTES / UNIVERSITIES</option>
+          </select>
+        </div>
+
+        <!-- Filter 2: Event Category (Technical, Cultural, Creative with "ALL" option) -->
+        <div class="filter-item">
+          <span class="filter-label">CATEGORY</span>
+          <select id="categoryFilter" class="brut-select">
+            <option value="ALL">ALL CATEGORIES</option>
+            <option value="TECHNICAL">TECHNICAL COMPETITIONS</option>
+            <option value="CULTURAL">CULTURAL EVENTS</option>
+            <option value="CREATIVE">CREATIVE &amp; GAMING</option>
+          </select>
+        </div>
+
+        <!-- Search Bar -->
+        <div class="search-wrapper">
+          <input type="text" id="searchInput" placeholder="SEARCH PARTICIPANT / UNIVERSITY...">
+        </div>
+      </div>
+
+      <button class="btn-brut" id="refreshBtn">
+        <span>⟳ REFRESH NOW</span>
+      </button>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- VIEW 1: STUDENTS LEADERBOARD (BOYS & GIRLS - TOP 10 EACH)   -->
+    <!-- ============================================================ -->
+    <div id="studentsView" class="view-content active">
+      <div class="columns-grid">
+        
+        <!-- Boys Top 10 Column -->
+        <section class="column-panel">
+          <div class="panel-header boys">
+            <div class="panel-title">
+              <div class="panel-icon-badge">♂</div>
+              <div>
+                <h2>BOYS LEADERBOARD</h2>
+              </div>
+            </div>
+            <span class="top-limit-badge" id="boysCountBadge">TOP 10</span>
+          </div>
+          <div class="cards-list" id="boysList">
+            <div class="empty-state">SYNCING STANDINGS FROM SUPABASE...</div>
+          </div>
+        </section>
+
+        <!-- Girls Top 10 Column -->
+        <section class="column-panel">
+          <div class="panel-header girls">
+            <div class="panel-title">
+              <div class="panel-icon-badge">♀</div>
+              <div>
+                <h2>GIRLS LEADERBOARD</h2>
+              </div>
+            </div>
+            <span class="top-limit-badge" id="girlsCountBadge">TOP 10</span>
+          </div>
+          <div class="cards-list" id="girlsList">
+            <div class="empty-state">SYNCING STANDINGS FROM SUPABASE...</div>
+          </div>
+        </section>
+
+      </div>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- VIEW 2: UNIVERSITY / INSTITUTION RANKINGS TAB               -->
+    <!-- ============================================================ -->
+    <div id="universityView" class="view-content">
+      <section class="column-panel">
+        <div class="panel-header university">
+          <div class="panel-title">
+            <div class="panel-icon-badge">🏛️</div>
+            <div>
+              <h2>CHAMPIONSHIP UNIVERSITY RANKINGS</h2>
+            </div>
+          </div>
+          <span class="top-limit-badge" id="univCountBadge">ALL UNIVERSITIES</span>
+        </div>
+        <div class="cards-list" id="universityList">
+          <div class="empty-state">CALCULATING INSTITUTION STANDINGS...</div>
+        </div>
+      </section>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+      TECHNIKA 2026 OPERATIONS // DEVELOPED BY <span>SANCHIT AGARWAL</span> // POWERED BY SUPABASE REALTIME
+    </footer>
+
+  </div>
+
+  <script src="config.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

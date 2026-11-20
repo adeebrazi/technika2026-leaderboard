@@ -1,0 +1,28 @@
+{
+  "name": "technika-leaderboard",
+  "version": "1.0.0",
+  "description": "Technika 2026 Neo-Brutalist Live Festival Leaderboard and Winner Console",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite --port 3001",
+    "build": "vite build && node -e \"const fs = require('fs'); ['config.js','app.js','admin.js'].forEach(f => fs.copyFileSync(f, 'dist/' + f));\"",
+    "preview": "vite preview --port 3001",
+    "serve": "npx serve -l 3001 ."
+  },
+  "keywords": [
+    "technika",
+    "leaderboard",
+    "festival",
+    "supabase",
+    "realtime"
+  ],
+  "author": "Technika Core Team",
+  "license": "MIT",
+  "devDependencies": {
+    "vite": "^5.4.10"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.46.1"
+  }
+}
